@@ -11,6 +11,7 @@
 - Color-blind mode
 - Swipe to Rotate
 - Powerups
+- Square changes sides and colors
 
 # Creator
 - Alvin Lin
