@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlatformCollector : MonoBehaviour {
+public class Collector : MonoBehaviour {
   
   public Rigidbody2D platformPrefab;
 
@@ -11,11 +11,10 @@ public class PlatformCollector : MonoBehaviour {
   private float minPlatformX, maxPlatformX;
 
   void Start() {
-    Camera camera = Camera.main;
-    Vector3 limits = camera.ScreenToWorldPoint(
-      new Vector3(Screen.width, Screen.height * 2, 0));
-    platformColors = GameManager.GetInstance().GetColors();
-    platformDistance = limits.y / 4;
+    GameManager manager = GameManager.GetInstance();
+    platformColors = manager.colors;
+    Vector3 limits = manager.limits;
+    platformDistance = limits.y * 2 / 3;
     minPlatformX = -limits.x + 1;
     maxPlatformX = limits.x - 1;
   }
@@ -24,6 +23,8 @@ public class PlatformCollector : MonoBehaviour {
     if (collider.CompareTag("Platform")) {
       SpawnNewPlatform();
       Destroy(collider.gameObject);
+    } else if (collider.CompareTag("Player")) {
+      GameManager.GetInstance().RestartGame();
     }
   }
 
@@ -38,6 +39,6 @@ public class PlatformCollector : MonoBehaviour {
     Rigidbody2D newPlatform = (Rigidbody2D) Instantiate(
       platformPrefab, newPlatformVector, Quaternion.identity);
     Color newColor = platformColors[Random.Range(0, platformColors.Length)];
-    newPlatform.GetComponent<PlatformBehavior>().setColor(newColor);
+    newPlatform.GetComponent<PlatformController>().color = newColor;
   }
 }

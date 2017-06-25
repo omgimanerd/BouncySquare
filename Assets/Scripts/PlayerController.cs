@@ -10,16 +10,24 @@ public class PlayerController : MonoBehaviour {
   public float controlSpeed;
   public float bounceVelocity;
   public float gravity;
+  public float sidePadding;
   public int rotationRate;
+
+  private float minX, maxX;
 
   private Color[] colors;
   private Rigidbody2D body;
   private int rotationChange;
+  private bool lost;
 
   void Start() {
-    colors = GameManager.GetInstance().GetColors();
+    GameManager manager = GameManager.GetInstance();
+    minX = -manager.limits.x + sidePadding;
+    maxX = manager.limits.x - sidePadding;
+    colors = manager.colors;
     body = GetComponent<Rigidbody2D>();
     rotationChange = 0;
+    lost = false;
   }
 
   void Update() {
@@ -28,14 +36,17 @@ public class PlayerController : MonoBehaviour {
     velocity.x = horizontal * controlSpeed;
     velocity.y -= gravity;
     body.velocity = velocity;
-   
+    ProcessUserInput();
+    BoundUserPosition();
+  }
+
+  public void ProcessUserInput() {
     // TODO: change to tapping on screen region
     if (Input.GetMouseButtonDown(0)) {
       rotationChange += 90;
     } else if (Input.GetMouseButtonDown(1)) {
       rotationChange -= 90;
     }
-
     if (rotationChange != 0 && Mathf.Abs(rotationChange) <= rotationRate) {
       transform.Rotate(0, 0, rotationChange, Space.Self);
       rotationChange = 0;
@@ -48,10 +59,26 @@ public class PlayerController : MonoBehaviour {
     }
   }
 
+  public void BoundUserPosition() {
+    float x = Mathf.Clamp(transform.position.x, minX, maxX);
+    Vector3 position = transform.position;
+    position.x = x;
+    transform.position = position;
+  }
+
   void OnTriggerEnter2D(Collider2D collider) {
-    Debug.Log("collided with " + collider.tag + " " + body.velocity.y);
     if (collider.CompareTag("Platform") && body.velocity.y <= 0) {
-      body.velocity = new Vector3(0, bounceVelocity, 0);
+      if (lost) {
+        return;
+      }
+      PlatformController behavior =
+        collider.gameObject.GetComponent<PlatformController>();
+      if (MatchColor(behavior.color)) {
+        body.velocity = new Vector3(0, bounceVelocity, 0);
+      } else {
+        body.velocity = new Vector3(0, bounceVelocity / 5, 0);
+        lost = true;
+      }
     }
   }
 
