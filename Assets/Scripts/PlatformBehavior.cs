@@ -21,6 +21,7 @@ public class PlatformBehavior : MonoBehaviour {
 
   public void setColor(Color color) {
     this.color = color;
+    this.color.a = 255;
   }
 
   public bool matchColor(Color color) {

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlatformCollector : MonoBehaviour {
-
-  public Color[] platformColors;
+  
   public Rigidbody2D platformPrefab;
 
+  private Color[] platformColors;
   private float platformDistance;
   private float minPlatformX, maxPlatformX;
 
@@ -14,6 +14,7 @@ public class PlatformCollector : MonoBehaviour {
     Camera camera = Camera.main;
     Vector3 limits = camera.ScreenToWorldPoint(
       new Vector3(Screen.width, Screen.height * 2, 0));
+    platformColors = GameManager.GetInstance().GetColors();
     platformDistance = limits.y / 4;
     minPlatformX = -limits.x + 1;
     maxPlatformX = limits.x - 1;
